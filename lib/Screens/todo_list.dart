@@ -4,7 +4,6 @@ import 'package:proyect/Models/todo.dart';
 import 'package:proyect/Utils/database_helper.dart';
 import 'package:proyect/Screens/todo_detail.dart';
 import 'package:sqflite/sqflite.dart';
-
 class TodoList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -24,21 +23,20 @@ class TodoListState extends State<TodoList> {
       updateListView();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-        backgroundColor: Colors.grey,
-      ),
-      body: getTodoListView(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          debugPrint('FAB clicked');
-          navigateToDetail(Todo('', '', '', ''), 'Add Todo');
-        },
-        tooltip: 'Add Todo',
-        child: Icon(Icons.add),
-        backgroundColor: Colors.grey,
-        foregroundColor: Colors.black,
+    return new MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        
+        body: getTodoListView(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            debugPrint('FAB clicked');
+            navigateToDetail(Todo('', '', '', ''  ), ' ');
+          },
+          tooltip: 'Add Todo',
+          child: Icon(Icons.add,color: Colors.black,),
+          backgroundColor: Colors.blueAccent,
+        ),
       ),
     );
   }
@@ -53,16 +51,16 @@ class TodoListState extends State<TodoList> {
             child: Column(
               children: [
                 new ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.amber,
-                    child: Text(getFirstLetter(this.todoList[position].title),
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  
+                  title: Text(
+                    this.todoList[position].title,
+                    style: TextStyle(fontWeight: FontWeight.bold)
                   ),
-                  title: Text(this.todoList[position].title,
-                      //title: Text(this.todoList[position].prueba
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(this.todoList[position].description),
-                  //subtitle: Text(this.todoList[position].prueba),
+                  subtitle: Text(
+                    this.todoList[position].prueba,
+                    
+                  ),
+                  
 
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -83,53 +81,24 @@ class TodoListState extends State<TodoList> {
                     navigateToDetail(this.todoList[position], 'Edit Todo');
                   },
                 ),
-
+                
                 new Container(
-                  padding: const EdgeInsets.all(10.0), // Un padding para todo
+                margin: EdgeInsets.all(15),
                   child: Text(
-                    (this.todoList[position].prueba),
+                    (this.todoList[position].description),
                     softWrap: true,
                   ),
                 ),
-
+                new ListTile(
+                  subtitle: Text(
+                    this.todoList[position].date
+                  ),
+                ),
               ],
             ));
       },
     );
   }
-
-  // Returns the priority color
-  // Color getPriorityColor(int priority) {
-  // 	switch (priority) {
-  // 		case 1:
-  // 			return Colors.red;
-  // 			break;
-  // 		case 2:
-  // 			return Colors.yellow;
-  // 			break;
-
-  // 		default:
-  // 			return Colors.yellow;
-  // 	}
-  // }
-  getFirstLetter(String title) {
-    return title.substring(0, 3);
-  }
-
-  // Returns the priority icon
-  // Icon getPriorityIcon(int priority) {
-  // 	switch (priority) {
-  // 		case 1:
-  // 			return Icon(Icons.play_arrow);
-  // 			break;
-  // 		case 2:
-  // 			return Icon(Icons.keyboard_arrow_right);
-  // 			break;
-
-  // 		default:
-  // 			return Icon(Icons.keyboard_arrow_right);
-  // 	}
-  // }
 
   void _delete(BuildContext context, Todo todo) async {
     int result = await databaseHelper.deleteTodo(todo.id);

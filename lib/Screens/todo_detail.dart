@@ -3,309 +3,326 @@ import 'package:flutter/material.dart';
 import 'package:proyect/Models/todo.dart';
 import 'package:proyect/Utils/database_helper.dart';
 import 'package:intl/intl.dart';
- 
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+
 class TodoDetail extends StatefulWidget {
+  final String appBarTitle;
+  final Todo todo;
 
-	final String appBarTitle;
-	final Todo todo;
+  TodoDetail(this.todo, this.appBarTitle);
 
-	TodoDetail(this.todo, this.appBarTitle);
-
-	@override
+  @override
   State<StatefulWidget> createState() {
-
     return TodoDetailState(this.todo, this.appBarTitle);
   }
 }
 
 class TodoDetailState extends State<TodoDetail> {
+  //static var _priorities = ['High', 'Low'];
 
-	//static var _priorities = ['High', 'Low'];
+  DatabaseHelper helper = DatabaseHelper();
 
-	DatabaseHelper helper = DatabaseHelper();
+  String appBarTitle;
+  Todo todo;
 
-	String appBarTitle;
-	Todo todo;
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
 
-	TextEditingController titleController = TextEditingController();
-	TextEditingController descriptionController = TextEditingController();
+  TextEditingController pruebaController = TextEditingController();
+
+  TodoDetailState(this.todo, this.appBarTitle);
+  final format = DateFormat("yyyy-MM-dd");
+  var _currencies = ['No seleccionada', 'En Proceso', 'Finalizada'];
+  var currentItemSelected = 'No seleccionada';
   
-	TextEditingController pruebaController = TextEditingController();
-
-	TodoDetailState(this.todo, this.appBarTitle);
-
-	@override
+  @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
+    TextStyle textStyle = Theme.of(context).textTheme.title;
 
-		TextStyle textStyle = Theme.of(context).textTheme.title;
-
-		titleController.text = todo.title;
-		descriptionController.text = todo.description;
+    titleController.text = todo.title;
+    descriptionController.text = todo.description;
     pruebaController.text = todo.prueba;
+    dateController.text =todo.date;
 
+
+    // ignore: unused_local_variable
+    DateTime selectedDate = DateTime.now();
+    var dropdownButton = DropdownButton<String>(
+      items: _currencies.map((String dropDownStringItem) {
+        return DropdownMenuItem<String>(
+          
+          value: dropDownStringItem,
+          child: Text(dropDownStringItem),
+        );
+      }).toList(),
+      onChanged: (value) {
+        debugPrint('Something changed in Title Text Field');
+        updatePrueba();
+        setState(() {
+          this.currentItemSelected = value;
+        });
+      },
+    );
     return WillPopScope(
-
-	    onWillPop: () {
-	    	// Write some code to control things, when user press Back navigation button in device navigationBar
-		    moveToLastScreen();
-	    },
-
-	    child: Scaffold(
-	    appBar: AppBar(
-		    title: Text(appBarTitle),
-		    leading: IconButton(icon: Icon(
-				    Icons.arrow_back),
-				    onPressed: () {
-		    	    // Write some code to control things, when user press back button in AppBar
-		    	    moveToLastScreen();
-				    }
-		    ),
-	    ),
-
-	    body: Padding(
-		    padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-		    child: ListView(
-			    children: <Widget>[
-
-			    	// First element
-				    // ListTile(
-					  //   title: DropdownButton(
-						// 	    items: _priorities.map((String dropDownStringItem) {
-						// 	    	return DropdownMenuItem<String> (
-						// 			    value: dropDownStringItem,
-						// 			    child: Text(dropDownStringItem),
-						// 		    );
-						// 	    }).toList(),
-
-						// 	    style: textStyle,
-
-						// 	    value: getPriorityAsString(todo.priority),
-
-						// 	    onChanged: (valueSelectedByUser) {
-						// 	    	setState(() {
-						// 	    	  debugPrint('User selected $valueSelectedByUser');
-						// 	    	  updatePriorityAsInt(valueSelectedByUser);
-						// 	    	});
-						// 	    }
-					  //   ),
-				    // ),
-
-				    // Second Element
-				    Padding(
-					    padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-					    child: TextField(
-						    controller: titleController,
-						    style: textStyle,
-						    onChanged: (value) {
-						    	debugPrint('Something changed in Title Text Field');
-						    	updateTitle();
-						    },
-						    decoration: InputDecoration(
-							    labelText: 'Title',
-							    labelStyle: textStyle,
-							    border: OutlineInputBorder(
-								    borderRadius: BorderRadius.circular(5.0)
-							    )
-						    ),
-					    ),
-				    ),
-
-				    // Third Element
-				    Padding(
-					    padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-					    child: TextField(
-						    controller: descriptionController,
-						    style: textStyle,
-						    onChanged: (value) {
-							    debugPrint('Something changed in Description Text Field');
-							    updateDescription();
-						    },
-						    decoration: InputDecoration(
-								    labelText: 'Description',
-								    labelStyle: textStyle,
-								    border: OutlineInputBorder(
-										    borderRadius: BorderRadius.circular(5.0)
-								    )
-						    ),
-					    ),
-				    ),
-
-            Padding(
-					    padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-					    child: TextField(
-						    controller: pruebaController,
-						    style: textStyle,
-						    onChanged: (value) {
-						    	debugPrint('Something changed in Title Text Field');
-						    	updatePrueba();
-						    },
-						    decoration: InputDecoration(
-							    labelText: 'Prueba',
-							    labelStyle: textStyle,
-							    border: OutlineInputBorder(
-								    borderRadius: BorderRadius.circular(5.0)
-							    )
-						    ),
-					    ),
-				    ),
-
-				    // Fourth Element
-				    Padding(
-					    padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-					    child: Row(
-						    children: <Widget>[
-						    	Expanded(
-								    child: RaisedButton(
-									    color: Theme.of(context).primaryColorDark,
-									    textColor: Theme.of(context).primaryColorLight,
-									    child: Text(
-										    'Save',
-										    textScaleFactor: 1.5,
-									    ),
-									    onPressed: () {
-									    	setState(() {
-									    	  debugPrint("Save button clicked");
-									    	  _save();
-									    	});
-									    },
-								    ),
-							    ),
-
-							    Container(width: 5.0,),
-
-							    Expanded(
-								    child: RaisedButton(
-									    color: Theme.of(context).primaryColorDark,
-									    textColor: Theme.of(context).primaryColorLight,
-									    child: Text(
-										    'Delete',
-										    textScaleFactor: 1.5,
-									    ),
-									    onPressed: () {
-										    setState(() {
-											    debugPrint("Delete button clicked");
-											    _delete();
-										    });
-									    },
-								    ),
-							    ),
-
-						    ],
-					    ),
-				    ),
-
-
-			    ],
-		    ),
-	    ),
-
-    ));
+        // ignore: missing_return
+        onWillPop: () {
+          moveToLastScreen();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.blueAccent,
+            title: Text(appBarTitle),
+            leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  moveToLastScreen();
+                }),
+          ),
+          body: Padding(
+            padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
+            child: ListView(
+              children: <Widget>[                
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: TextFormField(
+                    controller: titleController,
+                    style: textStyle,
+                    
+                    onChanged: (value) {
+                      debugPrint('Something changed in Title Text Field');
+                      updateTitle();
+                    },
+                    decoration: InputDecoration(
+                        labelText: 'Nombre de la Tarea',
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0))),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: 
+                    TextFormField(
+                    controller: pruebaController,
+                    style: textStyle,
+                    validator: validarEstado,
+                    enabled: false,
+                    
+                    onChanged: (value) {
+                      debugPrint('Something changed in Title Text Field');
+                      updatePrueba();
+                      print("First text field: $value");
+                    },
+                    
+                    decoration: InputDecoration(
+                        labelText: "Estado de la Tarea",
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0))),
+                  ),
+                  
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                    child: dropdownButton
+                    
+                    ),
+                // Third Element
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: TextFormField(
+                    minLines: 10,
+                    maxLines: 10,
+                    autocorrect: false,
+                    controller: descriptionController,
+                    style: textStyle,
+                    onChanged: (value) {
+                      debugPrint('Descripcion');
+                      updateDescription();
+                    },
+                    decoration: InputDecoration(
+                        labelText: 'Descripcion de la Tarea',
+                        filled: true,
+                        labelStyle: TextStyle(height: -150),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0)
+                          )
+                          ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: RaisedButton(
+                          color: Colors.blueAccent,
+                          textColor: Theme.of(context).primaryColorLight,
+                          child: Text(
+                            'Save',
+                            textScaleFactor: 1.5,
+                          ),
+                          onPressed: () {
+                            if ((todo.title == "" )||( todo.description == "" )||( todo.prueba == "")){
+                              _showAlertDialog('Atencion!', 'Todos los campos son  necesarios , verifique que se hayan llenado los mismos');
+                            }else{
+                              setState(() {
+                              debugPrint("Save button clicked");
+                              _save();
+                            });
+                            }
+                            
+                          },
+                        ),
+                      ),
+                      Container(
+                        width: 5.0,
+                      ),
+                      Expanded(
+                        child: RaisedButton(
+                          color: Colors.blueAccent,
+                          textColor: Theme.of(context).primaryColorLight,
+                          child: Text(
+                            'Delete',
+                            textScaleFactor: 1.5,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              debugPrint("Delete button clicked");
+                              _delete();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
+    
   }
-
+  String validarEstado(String value) {
+    if (value.length == 0) {
+      return "El nombre es necesario";
+    }
+    return null;
+  }
   void moveToLastScreen() {
-		Navigator.pop(context, true);
+    Navigator.pop(context, true);
   }
 
-	// Convert the String priority in the form of integer before saving it to Database
-	// void updatePriorityAsInt(String value) {
-	// 	switch (value) {
-	// 		case 'High':
-	// 			todo.priority = 1;
-	// 			break;
-	// 		case 'Low':
-	// 			todo.priority = 2;
-	// 			break;
-	// 	}
-	// }
-
-	// Convert int priority to String priority and display it to user in DropDown
-	// String getPriorityAsString(int value) {
-	// 	String priority;
-	// 	switch (value) {
-	// 		case 1:
-	// 			priority = _priorities[0];  // 'High'
-	// 			break;
-	// 		case 2:
-	// 			priority = _priorities[1];  // 'Low'
-	// 			break;
-	// 	}
-	// 	return priority;
-	// }
-
-	// Update the title of todo object
-  void updateTitle(){
+  void updateTitle() {
     todo.title = titleController.text;
   }
-  void updatePrueba(){
-    todo.prueba = pruebaController.text;
+
+  void updatePrueba() {
+    todo.prueba = currentItemSelected;
   }
-	// Update the description of todo object
-	void updateDescription() {
-		todo.description = descriptionController.text;
-	}
 
-	// Save data to database
-	void _save() async {
+  void updateDescription() {
+    todo.description = descriptionController.text;
+  }
 
-		moveToLastScreen();
+  void updateDate() {
+    todo.date = dateController.text;
+  }
 
-		todo.date = DateFormat.yMMMd().format(DateTime.now());
-		int result;
-		if (todo.id != null) {  // Case 1: Update operation
-			result = await helper.updateTodo(todo);
-		} else { // Case 2: Insert Operation
-			result = await helper.insertTodo(todo);
-		}
+  void _save() async {
+    moveToLastScreen();
 
-		if (result != 0) {  // Success
-			_showAlertDialog('Status', 'Todo Saved Successfully');
-		} else {  // Failure
-			_showAlertDialog('Status', 'Problem Saving Todo');
-		}
+    todo.date = DateFormat.yMMMd().format(DateTime.now());
+    int result;
+    if (todo.id != null) {
+      result = await helper.updateTodo(todo);
+    } else {
+      result = await helper.insertTodo(todo);
+    }
 
-	}
+    if (result != 0) {
+      _showAlertDialog('Genail!', 'Se Guardo la Tarea con existo');
+    } else {
+      _showAlertDialog('Status', 'Problem Saving Todo');
+    }
+  }
 
+  void _delete() async {
+    moveToLastScreen();
 
-	void _delete() async {
+    if (todo.id == null) {
+      _showAlertDialog('Status', 'No Todo was deleted');
+      return;
+    }
 
-		moveToLastScreen();
+    int result = await helper.deleteTodo(todo.id);
+    if (result != 0) {
+      _showAlertDialog('Status', 'Todo Deleted Successfully');
+    } else {
+      _showAlertDialog('Status', 'Error Occured while Deleting Todo');
+    }
+  }
 
-		// Case 1: If user is trying to delete the NEW todo i.e. he has come to
-		// the detail page by pressing the FAB of todoList page.
-		if (todo.id == null) {
-			_showAlertDialog('Status', 'No Todo was deleted');
-			return;
-		}
-
-		// Case 2: User is trying to delete the old todo that already has a valid ID.
-		int result = await helper.deleteTodo(todo.id);
-		if (result != 0) {
-			_showAlertDialog('Status', 'Todo Deleted Successfully');
-		} else {
-			_showAlertDialog('Status', 'Error Occured while Deleting Todo');
-		}
-	}
-
-	void _showAlertDialog(String title, String message) {
-
-		AlertDialog alertDialog = AlertDialog(
-			title: Text(title),
-			content: Text(message),
-		);
-		showDialog(
-				context: context,
-				builder: (_) => alertDialog
-		);
-	}
-
+  void _showAlertDialog(String title, String message) {
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+    );
+    showDialog(context: context, builder: (_) => alertDialog);
+  }
 }
 
+class BasicTimeField extends StatelessWidget {
+  final format = DateFormat("HH:mm");
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[
+      Text('Basic time field (${format.pattern})'),
+      DateTimeField(
+        format: format,
+        onShowPicker: (context, currentValue) async {
+          final time = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+          );
+          return DateTimeField.convert(time);
+        },
+      ),
+    ]);
+  }
+}
 
-
-
-
-
-
-
-
-
+class BasicDateTimeField extends StatelessWidget {
+  final format = DateFormat("yyyy-MM-dd HH:mm");
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: <Widget>[
+      Text('Basic date & time field (${format.pattern})'),
+      DateTimeField(
+        format: format,
+        onShowPicker: (context, currentValue) async {
+          final date = await showDatePicker(
+              context: context,
+              firstDate: DateTime(1900),
+              initialDate: currentValue ?? DateTime.now(),
+              lastDate: DateTime(2100));
+          if (date != null) {
+            final time = await showTimePicker(
+              context: context,
+              initialTime:
+                  TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+            );
+            return DateTimeField.combine(date, time);
+          } else {
+            return currentValue;
+          }
+        },
+      ),
+    ]);
+  }
+}

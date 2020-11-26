@@ -14,7 +14,7 @@ class DatabaseHelper {
 	String colDescription = 'description';
 	String colDate = 'date';
   String colPrueba = 'prueba';
-
+  
 	DatabaseHelper._createInstance(); // Named constructor to create instance of DatabaseHelper
 
 	factory DatabaseHelper() {
@@ -46,7 +46,7 @@ class DatabaseHelper {
 	void _createDb(Database db, int newVersion) async {
 
 		await db.execute('CREATE TABLE $todoTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, '
-				'$colDescription TEXT, $colDate TEXT,$colPrueba TEXT)');
+				'$colDescription TEXT, $colDate TEXT, $colPrueba TEXT);');
 	}
 
 	// Fetch Operation: Get all todo objects from database
@@ -64,6 +64,7 @@ class DatabaseHelper {
 		var result = await db.insert(todoTable, todo.toMap());
 		return result;
 	}
+
 
 	// Update Operation: Update a todo object and save it to database
 	Future<int> updateTodo(Todo todo) async {

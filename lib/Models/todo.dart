@@ -2,10 +2,13 @@
 class Todo {
 
 	int _id;
+
 	String _title;
 	String _description;
 	String _date;
   String _prueba;
+
+  
 	Todo(this._title, this._date, this._prueba, [this._description] );
 
 	Todo.withId(this._id, this._title, this._date, this._prueba, [this._description]);
@@ -19,6 +22,7 @@ class Todo {
 	String get date => _date;
 
   String get prueba => _prueba;
+
 
 
 	set title(String newTitle) {
@@ -38,7 +42,7 @@ class Todo {
   set prueba(String newPrueba){
     this._prueba = newPrueba;
   }
-	// Convert a Note object into a Map object
+
 	Map<String, dynamic> toMap() {
 
 		var map = Map<String, dynamic>();
@@ -54,7 +58,6 @@ class Todo {
 		return map;
 	}
 
-	// Extract a Note object from a Map object
 	Todo.fromMapObject(Map<String, dynamic> map) {
 		this._id = map['id'];
 		this._title = map['title'];

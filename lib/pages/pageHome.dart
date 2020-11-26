@@ -142,8 +142,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   String validarPrecio(String value) {
-    String patttern = r'(^[0-9]*$)';
-    RegExp regExp = new RegExp(patttern);
     if (value.length == 0) {
       return "El Precio es necesario";
     } 
